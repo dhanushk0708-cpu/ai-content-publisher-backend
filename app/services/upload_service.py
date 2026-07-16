@@ -21,7 +21,7 @@ class UploadService:
         return {
             "success": True,
             "video": {
-                "url": f"http://127.0.0.1:8000/videos/{filename}",
+                "url": f"https://ai-content-publisher-backend.onrender.com/videos/{filename}",
                 "thumbnail": download_result["metadata"]["thumbnail"],
                 "duration": download_result["metadata"]["duration"],
             },
