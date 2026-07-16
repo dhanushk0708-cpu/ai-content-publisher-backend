@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from pydantic import Field
 
 
 class YouTubeUploadRequest(BaseModel):
@@ -8,7 +9,7 @@ class YouTubeUploadRequest(BaseModel):
 
     description: str
 
-    hashtags: list[str]
+    hashtags: list[str] = Field(default_factory=list)
 
     privacy: str
 

@@ -1,39 +1,68 @@
-from pathlib import Path
-import pickle
-
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
+
+from app.config.settings import settings
 
 
 class YouTubeAuth:
     SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+    TOKEN_URI = "https://oauth2.googleapis.com/token"
 
-    def authenticate(self):
+    def ensure_oauth_client_configured(self):
 
-        token_path = Path("token.pickle")
+        missing = []
 
-        credentials = None
+        if not settings.GOOGLE_CLIENT_ID:
+            missing.append("GOOGLE_CLIENT_ID")
 
-        # Load saved token
-        if token_path.exists():
-            with open(token_path, "rb") as token:
-                credentials = pickle.load(token)
+        if not settings.GOOGLE_CLIENT_SECRET:
+            missing.append("GOOGLE_CLIENT_SECRET")
 
-        # Refresh expired token
-        if credentials and credentials.expired and credentials.refresh_token:
-            credentials.refresh(Request())
+        if not settings.GOOGLE_REDIRECT_URI:
+            missing.append("GOOGLE_REDIRECT_URI")
 
-        # First login
-        elif not credentials or not credentials.valid:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                "credentials.json", self.SCOPES
+        if missing:
+            raise RuntimeError(
+                "Missing Google OAuth configuration: "
+                + ", ".join(missing)
             )
 
-            credentials = flow.run_local_server(port=0)
+    def ensure_refresh_token_configured(self):
 
-            # Save token
-            with open(token_path, "wb") as token:
-                pickle.dump(credentials, token)
+        self.ensure_oauth_client_configured()
+
+        if not settings.GOOGLE_REFRESH_TOKEN:
+            raise RuntimeError(
+                "Google refresh token is not configured. "
+                "Open /youtube/connect once to authorize the YouTube channel."
+            )
+
+    def build_credentials(
+        self,
+        access_token: str | None = None,
+        refresh_token: str | None = None,
+    ) -> Credentials:
+
+        self.ensure_oauth_client_configured()
+
+        resolved_refresh_token = refresh_token or settings.GOOGLE_REFRESH_TOKEN
+
+        return Credentials(
+            token=access_token,
+            refresh_token=resolved_refresh_token,
+            token_uri=self.TOKEN_URI,
+            client_id=settings.GOOGLE_CLIENT_ID,
+            client_secret=settings.GOOGLE_CLIENT_SECRET,
+            scopes=self.SCOPES,
+        )
+
+    def get_authenticated_credentials(self) -> Credentials:
+
+        self.ensure_refresh_token_configured()
+
+        credentials = self.build_credentials()
+
+        if not credentials.valid:
+            credentials.refresh(Request())
 
         return credentials

@@ -4,9 +4,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from app.routers.auth import router as auth_router
 from app.routers.upload import router as upload_router
 from app.routers.youtube import router as youtube_router
-from app.routers.auth import router as auth_router
+from app.routers.youtube_oauth import router as youtube_oauth_router
 
 app = FastAPI(title="AI Content Publisher")
 
@@ -32,6 +33,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(youtube_router)
+app.include_router(youtube_oauth_router)
 
 
 @app.get("/")
