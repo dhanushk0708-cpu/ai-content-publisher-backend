@@ -1,14 +1,14 @@
 import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.routers.upload import router as upload_router
 from app.routers.youtube import router as youtube_router
-
+from app.routers.auth import router as auth_router
 
 app = FastAPI(title="AI Content Publisher")
-
 
 os.makedirs("storage/videos", exist_ok=True)
 
@@ -29,10 +29,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(youtube_router)
 
 
 @app.get("/")
 def home():
+
     return {"message": "AI Content Publisher Running"}

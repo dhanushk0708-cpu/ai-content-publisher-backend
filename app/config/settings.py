@@ -19,5 +19,15 @@ class Settings:
         "gemini-2.0-flash",
     ]
 
+    ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
+
+    ADMIN_PASSWORD_HASH = os.getenv("ADMIN_PASSWORD_HASH")
+
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+
+    JWT_ALGORITHM = "HS256"
+
+    ACCESS_TOKEN_EXPIRE_MINUTES = 1440
+
 
 settings = Settings()
