@@ -7,7 +7,16 @@ from app.routers.youtube import router as youtube_router
 
 app = FastAPI(title="AI Content Publisher")
 
-app.mount("/videos", StaticFiles(directory="storage/videos"), name="videos")
+import os
+from fastapi.staticfiles import StaticFiles
+
+os.makedirs("storage/videos", exist_ok=True)
+
+app.mount(
+    "/videos",
+    StaticFiles(directory="storage/videos"),
+    name="videos",
+)
 
 app.add_middleware(
     CORSMiddleware,
