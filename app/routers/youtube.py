@@ -5,13 +5,13 @@ from app.services.youtube.youtube_service import YouTubeService
 
 router = APIRouter()
 
-youtube = YouTubeService()
-
 
 @router.post("/youtube/upload")
 def upload_video(request: YouTubeUploadRequest):
 
-    result = youtube.upload_video(
+    youtube = YouTubeService()
+
+    return youtube.upload_video(
         video_path=request.video_path,
         title=request.title,
         description=request.description,
@@ -19,5 +19,3 @@ def upload_video(request: YouTubeUploadRequest):
         privacy=request.privacy,
         category=request.category,
     )
-
-    return result
